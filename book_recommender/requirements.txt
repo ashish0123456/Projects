@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pandas
+numpy
+gradio
+langchain_community
+langchain_chroma
+langchain
+pyyaml
