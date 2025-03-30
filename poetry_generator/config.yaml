@@ -1,0 +1,6 @@
+model:
+  path: "transformer_model.pth"
+training:
+  epochs: 5
+  max_len: 300
+  d_model: 6
