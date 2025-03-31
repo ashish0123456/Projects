@@ -34,13 +34,15 @@ class PositionEncoding(nn.Module):
 
 # Self-Attention mechanism
 class Attention(nn.Module):
-    def __init__(self, d_model):
+    def __init__(self, d_model, dropout=0.3):
         super().__init__()
         
         # Linear layers for computing Q, K, V
         self.W_q = nn.Linear(d_model, d_model, bias=False)
         self.W_k = nn.Linear(d_model, d_model, bias=False)
         self.W_v = nn.Linear(d_model, d_model, bias=False)
+
+        self.dropout = nn.Dropout(dropout)
 
     def forward(self, q_input, k_input, v_input, mask=None):
         """
@@ -50,7 +52,7 @@ class Attention(nn.Module):
         k = self.W_k(k_input)
         v = self.W_v(v_input)
 
-        # Compute similarity scores (QK^T)
+        # Compute similarity scores ((QK^T) / sqrt(d_model))
         similarity = torch.matmul(q, k.transpose(-2, -1)) / (k.size(-1) ** 0.5)
 
         # Apply mask (prevent cheating by not looking ahead)
@@ -59,6 +61,7 @@ class Attention(nn.Module):
         
         # Compute attention weights
         attention_weights = F.softmax(similarity, dim=-1)
+        attention_weights = self.dropout(attention_weights)
         
         # Apply attention weights to values
         attention_output = torch.matmul(attention_weights, v)
@@ -66,7 +69,7 @@ class Attention(nn.Module):
 
 # Transformer-based model
 class TransformerModel(nn.Module):
-    def __init__(self, vocab_size=3000, max_len=3000, d_model=6):
+    def __init__(self, vocab_size=3000, max_len=3000, d_model=6, dropout=0.3):
         super().__init__()
         
         torch.manual_seed(42)
@@ -85,6 +88,9 @@ class TransformerModel(nn.Module):
         
         # Loss function
         self.loss_fn = nn.CrossEntropyLoss()
+
+        # Dropout layer
+        self.dropout = nn.Dropout(dropout)
     
     def forward(self, input_tokens):
         """
@@ -105,6 +111,9 @@ class TransformerModel(nn.Module):
         
         # Add residual connection
         residual_output = attention_output + position_encoded
+
+        # Add the dropout layer to avoid the over-fitting
+        residual_output = self.dropout(residual_output)
         
         # Final output projection
         output_logits = self.fc_layer(residual_output)
@@ -115,7 +124,7 @@ class TransformerModel(nn.Module):
         """
         Define the optimizer for training
         """
-        return Adam(self.parameters(), lr=0.01)
+        return Adam(self.parameters(), lr=0.001, weight_decay=1e-4)
     
 
 # Function for training the model

@@ -1,4 +1,5 @@
 import os
+import string
 import torch
 from torch.utils.data import DataLoader, Dataset
 from torch.nn.utils.rnn import pad_sequence
@@ -12,12 +13,14 @@ text_file_path = os.path.join(path, 'Sonnet.txt')
 with open(text_file_path, 'r', encoding='utf-8') as f:
     sonnet_dataset = f.read()
 
-word_to_index = {}
-index_to_word = {}
+word_to_index = {"<UNK>": 0}  # Assign index 0 to <UNK>
+index_to_word = {0: "<UNK>"}
 
 # Create the dictionary
 
-for line in sonnet_dataset:
+for line in sonnet_dataset.split('\n'):
+    line = line.strip().lower()  # Convert to lowercase and remove extra spaces
+    line = line.translate(str.maketrans('', '', string.punctuation))  # Remove punctuation
     for word in line.split():
         if word not in word_to_index:
             index = len(word_to_index)
@@ -29,7 +32,12 @@ print(word_to_index)
 
 # Map the poetry dataset with the created dictionary indexes
 indexed_dataset = [
-    [word_to_index[word] for word in line.split()] for line in sonnet_dataset
+    [
+        word_to_index.get(word.lower().translate(str.maketrans('', '', string.punctuation)),
+                       word_to_index["<UNK>"]) 
+        for word in line.split()
+    ] 
+    for line in sonnet_dataset.split('\n') if line.strip() #skip empty lines
 ]
 
 # Split the data for training and testing

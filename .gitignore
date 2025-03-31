@@ -1,1 +1,3 @@
 venv/
+launch.json
+__pycache__/

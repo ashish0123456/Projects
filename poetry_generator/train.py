@@ -1,10 +1,12 @@
+import os
 import torch
 import yaml
 from app.models.transformer import TransformerModel, train_model, evaluate_model
 from data_prep import train_loader, valid_loader, word_to_index
 
 # Load configuration
-with open("config.yaml", "r") as f:
+config_path = os.path.join(os.path.dirname(__file__), 'config.yaml')
+with open(config_path, "r") as f:
     config = yaml.safe_load(f)
 model_path = config["model"]["path"]
 vocab_size = len(word_to_index) + 1 

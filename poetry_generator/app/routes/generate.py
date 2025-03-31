@@ -1,3 +1,4 @@
+import os
 from fastapi import APIRouter, Query
 import torch
 import yaml
@@ -7,7 +8,8 @@ from data_prep import word_to_index, index_to_word
 router = APIRouter()
 
 # Load configuration
-with open("config.yaml", "r") as f:
+config_path = os.path.join(os.path.dirname(__file__), '..', '..', 'config.yaml')
+with open(config_path, "r") as f:
     config = yaml.safe_load(f)
 
 MODEL_PATH = config["model"]["path"]
