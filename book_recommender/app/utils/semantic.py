@@ -1,31 +1,15 @@
+import os
 import pandas as pd
-import numpy as np
-from langchain_community.document_loaders import TextLoader
 from langchain_chroma import Chroma
-from langchain.embeddings import FastEmbedEmbeddings
-from langchain_text_splitters import CharacterTextSplitter
+from config import DATA_DIR, CHROMA_DIR
 
-# Load the books dataset with emotions from the data folder
-books = pd.read_csv('data/book_with_emotions.csv')
-books['large_thumbnail'] = books['thumbnail'] + "&fife=w800"
-books['large_thumbnail'] = np.where(books['large_thumbnail'].isna(),
-                                    'data/cover-not_found.jpg',
-                                    books['large_thumbnail'])
+# Load books
+books = pd.read_csv(os.path.join(DATA_DIR, 'book_with_emotions.csv'))
+books['large_thumbnail'] = books['thumbnail'].fillna('') + "&fife=w800"
+books['large_thumbnail'].replace('&fife=w800', 'data/cover-not_found.jpg', inplace=True)
 
-# Load documents from tagged_descriptions.txt
-raw_document = TextLoader('data/tagged_descriptions.txt').load()
-# Use a chunk size of 0 with no overlap if you want the whole text at once
-text_splitter = CharacterTextSplitter(separator='\n', chunk_size=0, chunk_overlap=0)
-documents = text_splitter.split_documents(raw_document)
-
-# Create a vector database (Chroma) for semantic search
-embedding_model = FastEmbedEmbeddings()
-db_books = Chroma(embedding_function=embedding_model, persist_directory="data/chroma_db")
-
-batch_size = 50
-for i in range(0, len(documents), batch_size):
-    batch = documents[i: i + batch_size]
-    db_books.add_documents(batch)
+# Load the already-built Chroma DB
+db_books = Chroma(persist_directory=CHROMA_DIR)
 
 def retrieve_semantic_recommendations(query: str, category: str = None, tone: str = None,
                                       initial_top_k: int = 50, final_top_k: int = 10) -> pd.DataFrame:

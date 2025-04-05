@@ -1,0 +1,4 @@
+model:
+  path: "image_captioning_model.h5"
+training:
+  epochs: 10

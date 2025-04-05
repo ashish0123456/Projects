@@ -5,6 +5,7 @@ import string
 import kagglehub
 from PIL import Image
 
+import tensorflow as tf
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.models import Model
@@ -80,7 +81,7 @@ class DataIngestor:
         img_array = preprocess_input(img_array)
 
         # Extract features, result is a (1, 2048) vector
-        features = model.predict(img_array, verbose=0) 
+        features = model.predict(img_array, verbose=1) 
         return features.flatten()  # Convert to 1D vector
     
     def prepare_training_data(self, features_dict):
@@ -107,8 +108,6 @@ class DataIngestor:
                     X2.append(in_seq)
                     y.append(out_seq)
 
-        # Convert output words into one-hot encoded vectors (vocabulary size)
-        y = to_categorical(y, num_classes=self.vocab_size)
         return np.array(X1), np.array(X2), np.array(y)
 
 
@@ -152,3 +151,13 @@ features_dict = {
 #    Input: "startseq a dog runs" Output: "endseq"
 
 X1, X2, y = data_ingestor.prepare_training_data(features_dict)
+
+batch_size = 64
+total_size = len(X1)
+split_index = int(0.8 * total_size)
+
+train_dataset = tf.data.Dataset.from_tensor_slices(((X1[:split_index], X2[:split_index]), y[:split_index]))\
+    .shuffle(1000).batch(batch_size).prefetch(tf.data.AUTOTUNE)
+
+val_dataset = tf.data.Dataset.from_tensor_slices(((X1[split_index:], X2[split_index:]), y[split_index:]))\
+    .batch(batch_size).prefetch(tf.data.AUTOTUNE)
