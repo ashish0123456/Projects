@@ -4,6 +4,10 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 def generate_caption(model, image_feature, tokenizer, max_length):
     in_text = 'startseq'
     
+    # Ensure image_feature has a batch dimension
+    if image_feature.ndim == 1:
+        image_feature = np.expand_dims(image_feature, axis=0)
+
     for _ in range(max_length):
         sequence = tokenizer.texts_to_sequences([in_text])[0]
         sequence = pad_sequences([sequence], maxlen=max_length, padding='post')

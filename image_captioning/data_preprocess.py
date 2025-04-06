@@ -10,7 +10,8 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.models import Model
 from tensorflow.keras.applications.resnet50 import ResNet50, preprocess_input
-from tensorflow.keras.utils import to_categorical
+
+from app.utils.save_load import save_tokenizer, save_metadata
 
 
 class DataIngestor:
@@ -45,13 +46,24 @@ class DataIngestor:
         self.captions_dict = captions_dict
         return captions_dict
 
-    def tokenize_captions(self, captions):
+    def tokenize_captions(self, captions, tokenizer_path='artifacts/tokenizer.pkl', metadata_path='artifacts/metadata.yaml'):
         """
         Tokenizes text, builds vocabulary, and determines max caption length.
         """
         self.tokenizer.fit_on_texts(captions)
         self.vocab_size = len(self.tokenizer.word_index) + 1
         self.max_length = max(len(caption.split()) for caption in captions)
+
+        # Save the tokenizer
+        save_tokenizer(self.tokenizer, tokenizer_path)
+
+        # Save metadata
+        metadata = {
+            'max_length': self.max_length,
+            'vocab_size': self.vocab_size
+        }
+
+        save_metadata(metadata, metadata_path)
 
     def extract_features(self, image_path, model):
         """

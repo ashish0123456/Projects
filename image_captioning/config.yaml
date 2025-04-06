@@ -1,4 +1,8 @@
 model:
-  path: "image_captioning_model.h5"
+  path: "artifacts/image_captioning_model.h5"
+tokenizer:
+  path: "artifacts/tokenizer.pkl"
+metadata:
+  path: "artifacts/metadata.yaml"
 training:
   epochs: 10

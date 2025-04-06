@@ -1,5 +1,5 @@
 model:
-  path: "transformer_model.pth"
+  path: "artifacts/transformer_model.pth"
 training:
   epochs: 50
   max_len: 300
