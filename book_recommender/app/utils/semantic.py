@@ -1,15 +1,16 @@
 import os
 import pandas as pd
 from langchain_chroma import Chroma
+from langchain.embeddings import FastEmbedEmbeddings
 from config import DATA_DIR, CHROMA_DIR
 
 # Load books
-books = pd.read_csv(os.path.join(DATA_DIR, 'book_with_emotions.csv'))
+books = pd.read_csv(os.path.join(DATA_DIR, 'books_with_emotions.csv'))
 books['large_thumbnail'] = books['thumbnail'].fillna('') + "&fife=w800"
 books['large_thumbnail'].replace('&fife=w800', 'data/cover-not_found.jpg', inplace=True)
 
 # Load the already-built Chroma DB
-db_books = Chroma(persist_directory=CHROMA_DIR)
+db_books = Chroma(persist_directory=CHROMA_DIR, embedding_function=FastEmbedEmbeddings())
 
 def retrieve_semantic_recommendations(query: str, category: str = None, tone: str = None,
                                       initial_top_k: int = 50, final_top_k: int = 10) -> pd.DataFrame:
@@ -19,7 +20,7 @@ def retrieve_semantic_recommendations(query: str, category: str = None, tone: st
     records = db_books.similarity_search(query, k=initial_top_k)
 
     # Get the isbn for all the records
-    books_list = [int(rec.page_content.strip('"').split()[i]) for rec in records]
+    books_list = [int(rec.page_content.strip('"').split()[0]) for rec in records]
 
     # Get the books based on the isbn value
     book_recs = books[books['isbn13'].isin(books_list)]
