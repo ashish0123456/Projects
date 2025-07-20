@@ -12,16 +12,16 @@ class PositionEncoding(nn.Module):
         pe = torch.zeros(max_len, d_model)
         
         # Create a column vector of positions (0, 1, 2, ..., max_len-1)
-        position = torch.arange(max_len, dtype=torch.float).unsqueeze(1)
+        position = torch.arange(max_len, dtype=torch.float).unsqueeze(1) # shape: (max_len, 1)
         
         # Compute the scaling factors for sine and cosine functions
-        embedding_index = torch.arange(start=0, end=d_model, step=2).float()
+        embedding_index = torch.arange(start=0, end=d_model, step=2).float() # shape: (d_model/2,)
 
-        div_term = 1/torch.tensor(10000.0)**(embedding_index/d_model)
+        div_term = 1/torch.tensor(10000.0)**(embedding_index/d_model) # shape: (d_model/2,)
         
         # Apply sine to even indices, cosine to odd indices
-        pe[:, 0::2] = torch.sin(position * div_term)
-        pe[:, 1::2] = torch.cos(position * div_term)
+        pe[:, 0::2] = torch.sin(position * div_term) # shape: (max_len, d_model/2)
+        pe[:, 1::2] = torch.cos(position * div_term) # shape: (max_len, d_model/2)
         
         # Store positional encodings as a buffer (not a trainable parameter)
         self.register_buffer('pe', pe)
@@ -97,26 +97,26 @@ class TransformerModel(nn.Module):
         Forward pass through the Transformer model
         """
         # Embed input tokens
-        embeddings = self.embedding(input_tokens)
+        embeddings = self.embedding(input_tokens)  # Shape: (batch_size, seq_len, d_model)
         
         # Add positional encoding
-        position_encoded = self.pos_encoding(embeddings)
+        position_encoded = self.pos_encoding(embeddings) # Shape: (batch_size, seq_len, d_model)
         
         # Create a lower triangular mask for autoregressive processing
         seq_len = input_tokens.size(1)
-        mask = torch.tril(torch.ones(seq_len, seq_len)).to(input_tokens.device)
+        mask = torch.tril(torch.ones(seq_len, seq_len)).to(input_tokens.device) # Shape: (seq_len, seq_len)
         
         # Apply self-attention with the mask
-        attention_output = self.self_attention(position_encoded, position_encoded, position_encoded, mask=mask)
+        attention_output = self.self_attention(position_encoded, position_encoded, position_encoded, mask=mask) # Shape: (batch_size, seq_len, d_model)
         
         # Add residual connection
-        residual_output = attention_output + position_encoded
+        residual_output = attention_output + position_encoded # Shape: (batch_size, seq_len, d_model)
 
         # Add the dropout layer to avoid the over-fitting
-        residual_output = self.dropout(residual_output)
+        residual_output = self.dropout(residual_output) # Shape: (batch_size, seq_len, d_model)
         
         # Final output projection
-        output_logits = self.fc_layer(residual_output)
+        output_logits = self.fc_layer(residual_output) # Shape: (batch_size, seq_len, vocab_size)
         
         return output_logits
     
