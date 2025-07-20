@@ -19,7 +19,4 @@ This project leverages **Natural Language Generation (NLG)** to create coherent 
   - **CI/CD automation with GitHub Actions**  
   - **Deployed to AWS**
 
----
-
-## **Project Structure**
 
