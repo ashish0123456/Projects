@@ -1,9 +1,11 @@
-name: CI/CD Pipeline
+name: Poetry Generator CI/CD Pipeline
 
 on:
   push:
     branches: 
       - main
+    paths:
+      - 'poetry_generator/**'
     paths-ignore:
       - 'README.md'
 
@@ -85,11 +87,11 @@ jobs:
 
     - name: Stop and remove existing Docker container
       run: |
-        docker ps -q --filter "name=image-captioning" | grep -q . && docker stop image-captioning && docker rm -fv image-captioning
+        docker ps -q --filter "name=poetry-generator" | grep -q . && docker stop poetry-generator && docker rm -fv poetry-generator
 
     - name: Run Docker container
       run: |
-        docker run -d --name image-captioning \
+        docker run -d --name poetry-generator \
           -p 8000:8000 \
           -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
           -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \

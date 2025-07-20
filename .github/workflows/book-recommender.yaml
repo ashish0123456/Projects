@@ -1,9 +1,11 @@
-name: CI/CD Pipeline
+name: Book Recommender CI/CD Pipeline
 
 on:
   push:
     branches: 
       - main
+    paths:
+      - 'book_recommender/**'
     paths-ignore:
       - 'README.md'
 
