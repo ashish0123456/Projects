@@ -1,7 +1,7 @@
 # Poetry Generator
 
 A **Transformer-based Poetry Generation Model** trained on **Shakespeare’s sonnets**.  
-This project leverages **Natural Language Generation (NLG)** to create coherent and stylistically consistent poetry, deployed as a real-time API service.
+This project leverages **Natural Language Processing (NLP)** to create coherent and stylistically consistent poetry, deployed as a real-time API service.
 
 ---
 
