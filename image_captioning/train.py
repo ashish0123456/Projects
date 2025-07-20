@@ -1,8 +1,7 @@
 import os
-from data_preprocess import train_dataset, val_dataset, data_ingestor, features_dict
+from data_preprocess import train_dataset, val_dataset, data_ingestor
 from app.models.model import ImageCaptioning
 import yaml
-import tensorflow as tf
 
 config_path = os.path.join(os.path.dirname(__file__), 'config.yaml')
 with open(config_path, 'r') as f:
