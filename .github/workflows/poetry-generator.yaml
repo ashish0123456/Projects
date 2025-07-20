@@ -6,8 +6,6 @@ on:
       - main
     paths:
       - 'poetry_generator/**'
-    paths-ignore:
-      - 'README.md'
 
 permissions:
   id-token: write

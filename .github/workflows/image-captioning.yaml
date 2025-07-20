@@ -6,8 +6,6 @@ on:
       - main
     paths:
       - 'image_captioning/**'
-    paths-ignore:
-      - 'README.md'
 
 permissions:
   id-token: write

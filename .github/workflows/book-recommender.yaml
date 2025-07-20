@@ -6,8 +6,6 @@ on:
       - main
     paths:
       - 'book_recommender/**'
-    paths-ignore:
-      - 'README.md'
 
 permissions:
   id-token: write
