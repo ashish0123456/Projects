@@ -85,7 +85,12 @@ jobs:
 
     - name: Stop and remove existing Docker container
       run: |
-        docker ps -q --filter "name=poetry-generator" | grep -q . && docker stop poetry-generator && docker rm -fv poetry-generator
+        if [ "$(docker ps -aq -f name=poetry-generator)" ]; then
+          docker stop poetry-generator || true
+          docker rm -fv poetry-generator || true
+        else
+          echo "No existing container to stop."
+        fi
 
     - name: Run Docker container
       run: |

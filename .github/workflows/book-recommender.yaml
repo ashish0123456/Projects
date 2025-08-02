@@ -85,7 +85,12 @@ jobs:
 
     - name: Stop and remove existing Docker container
       run: |
-        docker ps -q --filter "name=book-recommender" | grep -q . && docker stop book-recommender && docker rm -fv book-recommender
+        if [ "$(docker ps -aq -f name=book-recommender)" ]; then
+          docker stop book-recommender || true
+          docker rm -fv book-recommender || true
+        else
+          echo "No existing container to stop."
+        fi
 
     - name: Run Docker container
       run: |

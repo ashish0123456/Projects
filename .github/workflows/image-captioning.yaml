@@ -85,8 +85,13 @@ jobs:
 
     - name: Stop and remove existing Docker container
       run: |
-        docker ps -q --filter "name=image-captioning" | grep -q . && docker stop image-captioning && docker rm -fv image-captioning
-
+        if [ "$(docker ps -aq -f name=image-captioning)" ]; then
+          docker stop image-captioning || true
+          docker rm -fv image-captioning || true
+        else
+          echo "No existing container to stop."
+        fi
+        
     - name: Run Docker container
       run: |
         docker run -d --name image-captioning \
