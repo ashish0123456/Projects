@@ -18,4 +18,4 @@ A **Content-Based Book Recommendation System** that uses **vector similarity sea
 - **Production Deployment:**  
   - **Containerized with Docker**  
   - **Automated CI/CD with GitHub Actions**  
-  - **Deployed to AWS**
+  - **Deployed to AWS**   
