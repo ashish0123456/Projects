@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 8000
 
 # Command to run gradio dashboard
-CMD ["python", "book_recommender/dashboard.py"]
+CMD ["python", "dashboard.py"]
 
 # Command to run FastAPI server using uvicorn
 # CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
