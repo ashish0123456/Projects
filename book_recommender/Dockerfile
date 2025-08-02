@@ -13,5 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Expose API port
 EXPOSE 8000
 
-# Command to run FastAPI server
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Command to run gradio dashboard
+CMD ["python", "book_recommender/dashboard.py"]
+
+# Command to run FastAPI server using uvicorn
+# CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

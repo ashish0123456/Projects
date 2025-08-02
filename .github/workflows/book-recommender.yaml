@@ -79,6 +79,10 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
+    - name: Clean previous Docker images and containers
+      run: |
+        docker system prune -f
+
     - name: Pull Docker image from Amazon ECR
       run: |
         docker pull ${{ secrets.AWS_ECR_LOGIN_URL }}/${{ secrets.ECR_REPOSITORY }}:latest
@@ -117,6 +121,3 @@ jobs:
           echo "Container is running."
         fi
 
-    - name: Clean previous Docker images and containers
-      run: |
-        docker system prune -f

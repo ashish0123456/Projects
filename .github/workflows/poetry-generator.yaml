@@ -79,6 +79,10 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
+    - name: Clean previous Docker images and containers
+      run: |
+        docker system prune -f
+
     - name: Pull Docker image from Amazon ECR
       run: |
         docker pull ${{ secrets.AWS_ECR_LOGIN_URL }}/${{ secrets.ECR_REPOSITORY }}:latest
@@ -101,6 +105,18 @@ jobs:
           -e AWS_REGION=${{ secrets.AWS_REGION }} \
           ${{ secrets.AWS_ECR_LOGIN_URL }}/${{ secrets.ECR_REPOSITORY }}:latest
 
-    - name: Clean previous Docker images and containers
+    - name: Wait for container to initialize
+      run: sleep 5
+
+    - name: Show container logs
+      run: docker logs poetry-generator
+
+    - name: Fail if container is not running
       run: |
-        docker system prune -f
+        RUNNING=$(docker inspect -f '{{.State.Running}}' poetry-generator)
+        if [ "$RUNNING" != "true" ]; then
+          echo "Container is not running. Likely crashed after startup."
+          exit 1
+        else
+          echo "Container is running."
+        fi
