@@ -15,7 +15,7 @@ with gr.Blocks(theme=gr.themes.Glass()) as dashboard:
         submit_button = gr.Button("Find recommendations")
             
     gr.Markdown("## Recommendations")
-    output = gr.Gallery(label="Recommended Books", columns=8, rows=2)
+    output = gr.Gallery(label="Recommended Books", columns=8, rows=2, type="url")
     submit_button.click(fn=recommend_books,
                         inputs=[user_query, category_dropdown, tone_dropdown],
                         outputs=output)
