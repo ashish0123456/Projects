@@ -18,3 +18,4 @@ This project integrates **deep learning, API deployment, and cloud deployment** 
   - **Dockerized containers** for easy deployment
   - **CI/CD with GitHub Actions**  
   - **Deployed to AWS**
+  
