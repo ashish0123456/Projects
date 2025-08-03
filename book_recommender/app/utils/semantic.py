@@ -2,12 +2,15 @@ import os
 import pandas as pd
 from langchain_chroma import Chroma
 from langchain.embeddings import FastEmbedEmbeddings
-from config import DATA_DIR, CHROMA_DIR
+from config import DATA_DIR, CHROMA_DIR, BASE_DIR
 
 # Load books
 books = pd.read_csv(os.path.join(DATA_DIR, 'books_with_emotions.csv'))
-books['large_thumbnail'] = books['thumbnail'].fillna('') + "&fife=w800"
-books['large_thumbnail'].replace('&fife=w800', 'data/cover-not_found.jpg', inplace=True)
+
+COVER_NOT_FOUND = os.path.join(BASE_DIR, 'data', 'cover-not_found.jpg')
+books['large_thumbnail'] = books['thumbnail'].fillna('').apply(
+    lambda x: x + '&fife=w800' if x.startswith('http') else COVER_NOT_FOUND
+)
 
 # Load the already-built Chroma DB
 db_books = Chroma(persist_directory=CHROMA_DIR, embedding_function=FastEmbedEmbeddings())
