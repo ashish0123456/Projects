@@ -22,4 +22,3 @@ with gr.Blocks(theme=gr.themes.Glass()) as dashboard:
 
 if __name__ == "__main__":
     dashboard.launch(server_port=8000, server_name="0.0.0.0", share=True)
-    
