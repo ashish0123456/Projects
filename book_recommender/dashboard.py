@@ -15,11 +15,10 @@ with gr.Blocks(theme=gr.themes.Glass()) as dashboard:
         submit_button = gr.Button("Find recommendations")
             
     gr.Markdown("## Recommendations")
-    output = gr.Gallery(label="Recommended Books", columns=8, rows=2, type="url")
+    output = gr.Gallery(label="Recommended Books", columns=8, type="url")
     submit_button.click(fn=recommend_books,
                         inputs=[user_query, category_dropdown, tone_dropdown],
                         outputs=output)
 
 if __name__ == "__main__":
     dashboard.launch(server_port=8000, server_name="0.0.0.0", share=True)
-    
