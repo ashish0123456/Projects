@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
 from sqlmodel import Session
 from app.db.session import get_session
 from app.services.storage import save_upload
+from app.services.progress import get_last_progress
 from app.crud import meeting as crud_meeting
 from app.schemas.meeting import MeetingRead, TranscriptSegmentRead, ActionItemRead, SearchRequest, SummaryRead
 from app.tasks.ingest import ingest_meeting_task
@@ -29,6 +30,13 @@ def get_meeting(meeting_id: int, session: Session = Depends(get_session)):
     if not meeting:
         raise HTTPException(status_code=404, detail="Meeting not found")
     return MeetingRead(id=meeting.id, title=meeting.title, filename=meeting.filename, audio_path=meeting.audio_path, status=meeting.status)
+
+# ------------------------------
+# Get the latest meeting progress status
+# ------------------------------
+@router.get("/{meeting_id}/progress/")
+def read_progress(meeting_id: int):
+    return get_last_progress(meeting_id)
 
 # ------------------------------
 # Get transcripts
@@ -63,7 +71,7 @@ def get_action_items(meeting_id: int, session: Session = Depends(get_session)):
 # ------------------------------
 # Get LLM-generated summary
 # ------------------------------
-@router.get("/{meeting_id}/summary", response_model=SummaryRead)
+@router.get("/{meeting_id}/summary/", response_model=SummaryRead)
 def get_summary(meeting_id: int, session: Session = Depends(get_session)):
     meeting = crud_meeting.get_meeting(session, meeting_id)
     if not meeting:
@@ -93,7 +101,7 @@ def search_meeting(meeting_id: int, body: SearchRequest, session: Session = Depe
             "segment_id": seg.id,
             "start_time": seg.start_time,
             "end_time": seg.end_time,
-            "speaker_label": seg.speaker_label,
+            "speaker_label": seg.speaker,
             "text": seg.text,
             "score": res['score']
         })
@@ -102,7 +110,7 @@ def search_meeting(meeting_id: int, body: SearchRequest, session: Session = Depe
 # ------------------------------
 # Get all the meeting info - transcript, action items and summary
 # ------------------------------
-@router.get("/{meeting_id}/details")
+@router.get("/{meeting_id}/details/")
 def get_meeting_details(meeting_id: int, session: Session = Depends(get_session)):
     meeting = crud_meeting.get_meeting(session, meeting_id)
     if not meeting:
@@ -111,7 +119,7 @@ def get_meeting_details(meeting_id: int, session: Session = Depends(get_session)
     segments = crud_meeting.list_transcript_segments(session, meeting_id)
     actions = crud_meeting.list_action_items(session, meeting_id)
     summary_obj = crud_meeting.get_summary(session, meeting_id)
-    summary_text = summary_obj["summary_text"] if summary_obj else None
+    summary_text = summary_obj.summary_text if summary_obj else None
     return {
         "id": meeting.id,
         "title": meeting.title,

@@ -10,7 +10,7 @@ from app.services import summarize as summarize_svc
 from app.services import embeddings_faiss as faiss_svc
 from app.services import progress as progress_svc
 import os
-import time
+import tempfile
 import logging
 import numpy as np
 
@@ -41,7 +41,7 @@ def ingest_meeting_task(meeting_id: int):
             audio_path = meeting.audio_path
 
         # ensure wav file and prepare single-channel 16k wav
-        tmp_wav = os.path.join("tmp", f"meeting_{meeting_id}_converted.wav")
+        tmp_wav = os.path.join(tempfile.gettempdir(), f"meeting_{meeting_id}_converted.wav")
         audio_svc.load_audio_bytes_to_wavfile(audio_path, tmp_wav)
         progress_svc.publish_progress(meeting_id, "audio_converted", {"path": tmp_wav})
 

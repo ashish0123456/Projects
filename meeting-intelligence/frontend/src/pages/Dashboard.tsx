@@ -1,6 +1,5 @@
 import { useState } from "react";
 import UploadForm from "../components/UploadForm";
-import ProgressPanel from "../components/ProgressPanel";
 import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
@@ -17,7 +16,7 @@ export default function Dashboard() {
     return (
         <div className="space-y-4">
             <UploadForm onUploaded={handleUploaded} />
-            {meetingId && <ProgressPanel meetingId={meetingId} />}
+            {meetingId && <p>We’re processing your meeting. Redirecting to the meeting page…</p>}
         </div>
     );
 }
