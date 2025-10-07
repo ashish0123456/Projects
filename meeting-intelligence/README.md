@@ -1,14 +1,36 @@
-# Meeting Intelligence (MVP) — Backend
+# Meeting Intelligence App
 
-This repo contains the backend scaffold of a Meeting Intelligence MVP:
-- FastAPI backend with SQLModel (SQLAlchemy-based ORM)
-- PostgreSQL for metadata
-- Redis + Celery for background ingestion tasks
-- FAISS / embeddings / ASR 
+An **AI-powered meeting intelligence platform** that records, transcribes, summarizes, and extracts action items from meetings, all in real time.  
+Built with a **React + FastAPI full-stack architecture**, it demonstrates **AI integration, clean backend design, and modern frontend development**.
 
-## Quick start (dev)
+---
 
-1. Copy `.env.example` to `.env` and update variables if needed.
-2. Build and start Postgres + Redis + backend (dev mode):
-   ```bash
-   docker-compose up --build
+## Tech Stack
+
+### **Frontend**
+- React (Vite + TypeScript)
+- Tailwind CSS
+- Axios for API communication
+- Component-based modular structure
+
+### **Backend**
+- FastAPI (Python)
+- LLM integration
+- PostgreSQL (SQLAlchemy ORM)
+- Celery + Redis (asynchronous task queue)
+- Pydantic v2 for validation
+- Dockerized for easy deployment
+
+---
+
+## Core Features
+
+| Category | Description |
+|-----------|--------------|
+| **Meeting Transcription** | Upload or stream meeting audio; speech-to-text transcription. |
+| **Summarization** | LLM-powered summary generation (extractive & abstractive). |
+| **Action Items Extraction** | Identifies tasks and responsibilities from meeting content. |
+| **Speaker Diarization** | (Optional) Identifies different speakers in a conversation. |
+| **Persistent Storage** | Stores meeting data, transcripts, and summaries in PostgreSQL. |
+| **Dashboard** | Interactive frontend to view meeting summaries and insights. |
+| **Async Processing** | Heavy LLM + transcription handled asynchronously via Celery workers. |

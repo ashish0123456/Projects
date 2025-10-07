@@ -65,6 +65,12 @@ def collect_voiced_segments(
         else:
             if voiced_frames:
                 chunk_bytes = b"".join(voiced_frames)
+                # Calculate how many 30 ms frames are included in this speech segment.
+                # len(chunk_bytes): total size of this chunk in bytes
+                # 2 * sample_rate: converts bytes -> seconds of audio 
+                # since each sample is 2 bytes in 16-bit audio and sample_rate = samples per second
+                # (frame_duration_ms / 1000): converts seconds -> number of frames
+                # So overall, we’re converting total bytes -> total frames in this chunk.
                 frames_in_chunk = int(len(chunk_bytes) / (2 * sample_rate) / (frame_duration_ms / 1000.0))
                 start_sec = max(0.0, frame_index - frames_in_chunk) * (frame_duration_ms / 1000.0)
                 end_sec = start_sec + frames_in_chunk * (frame_duration_ms / 1000.0)
