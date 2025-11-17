@@ -26,7 +26,9 @@ def ingest_meeting_task(meeting_id: int):
     waits a bit to simulate work, then sets 'completed'.
     """
     logger.info("Starting ingestion for meeting ID: %s", meeting_id)
-    progress_svc.publish_progress(meeting_id, "started", {"msg": "ingestion started"})
+    progress_svc.publish_progress(meeting_id, "started", {
+        "msg": "We received your meeting file and are preparing it for analysis."
+    })
 
     try:
         with Session(engine) as session:
@@ -37,17 +39,25 @@ def ingest_meeting_task(meeting_id: int):
             
             # Update status to processing
             meeting = crud_meeting.update_meeting_status(session, meeting_id, "processing")
-            progress_svc.publish_progress(meeting_id, "processing", {"msg": "meeting processing started"})
+            progress_svc.publish_progress(meeting_id, "processing", {
+                "msg": "Your meeting is in the queue and key services are spinning up."
+            })
             audio_path = meeting.audio_path
 
         # ensure wav file and prepare single-channel 16k wav
         tmp_wav = os.path.join(tempfile.gettempdir(), f"meeting_{meeting_id}_converted.wav")
         audio_svc.load_audio_bytes_to_wavfile(audio_path, tmp_wav)
-        progress_svc.publish_progress(meeting_id, "audio_converted", {"path": tmp_wav})
+        progress_svc.publish_progress(meeting_id, "audio_converted", {
+            "msg": "Audio cleaned and converted for the best transcription quality.",
+            "path": tmp_wav
+        })
 
         # VAD splitting into segments
         segments = audio_svc.split_on_speech(tmp_wav, min_duration_ms=500, max_duration_ms=60000)
-        progress_svc.publish_progress(meeting_id, "vad_completed", {"num_segments": len(segments)})
+        progress_svc.publish_progress(meeting_id, "vad_completed", {
+            "msg": f"Detected {len(segments)} distinct speech sections.",
+            "num_segments": len(segments)
+        })
 
         # segments: list of (start_sec, end_sec, segment_wav_path)
         segment_texts = []
@@ -56,7 +66,10 @@ def ingest_meeting_task(meeting_id: int):
 
         # Transcribe each segment
         transcription = ASR_ENGINE.transcribe_batch(segment_paths)
-        progress_svc.publish_progress(meeting_id, "transcription_completed", {"num_segments": len(transcription)})
+        progress_svc.publish_progress(meeting_id, "transcription_completed", {
+            "msg": f"Finished transcribing {len(transcription)} sections of your meeting.",
+            "num_segments": len(transcription)
+        })
 
         # Diarization (speaker clustering)
         try: 
@@ -74,7 +87,10 @@ def ingest_meeting_task(meeting_id: int):
                 segment_texts.append(text or "")
                 segment_infos.append({"segment_id": seg_obj.id, "start": start, "end": end, "speaker": speaker_label})
 
-        progress_svc.publish_progress(meeting_id, "segments_saved", {"num_segments_saved": len(segment_infos)})
+        progress_svc.publish_progress(meeting_id, "segments_saved", {
+            "msg": "Transcript organized with speaker labels for easy reading.",
+            "num_segments_saved": len(segment_infos)
+        })
 
         # Summarization
         full_text = "/n".join([seg for seg in segment_texts if seg])
@@ -88,7 +104,11 @@ def ingest_meeting_task(meeting_id: int):
             for action in actions:
                 crud_meeting.add_action_item(session, meeting_id, action, segment_id=None)
         
-        progress_svc.publish_progress(meeting_id, "summarization_completed", {"summary": summary, "num_action_items": len(actions)})
+        progress_svc.publish_progress(meeting_id, "summarization_completed", {
+            "msg": f"Summary crafted and {len(actions)} action item(s) captured.",
+            "summary": summary,
+            "num_action_items": len(actions)
+        })
 
         # Build embeddings & FAISS index for semantic search
         texts_for_embeddings = []
@@ -104,14 +124,24 @@ def ingest_meeting_task(meeting_id: int):
             embs_np = np.array(embs).astype("float32")
             dim = embs_np.shape[1]
             index_path, mapping_path = faiss_svc.create_faiss_index(meeting_id, dim, embs_np, mapping)
-            progress_svc.publish_progress(meeting_id, "faiss_indexed", {"index_path": index_path, "mapping_path": mapping_path})
+            progress_svc.publish_progress(meeting_id, "faiss_indexed", {
+                "msg": "Smart search index is ready, find anything instantly.",
+                "index_path": index_path,
+                "mapping_path": mapping_path
+            })
         else:
-            progress_svc.publish_progress(meeting_id, "faiss_indexed", {"index_path": None, "mapping_path": None})
+            progress_svc.publish_progress(meeting_id, "faiss_indexed", {
+                "msg": "Search index skipped because no transcript text was detected.",
+                "index_path": None,
+                "mapping_path": None
+            })
 
         with Session(engine) as session:
             crud_meeting.update_meeting_status(session, meeting_id, "completed")
 
-        progress_svc.publish_progress(meeting_id, "completed", {"msg": "ingestion completed"})
+        progress_svc.publish_progress(meeting_id, "completed", {
+            "msg": "All insights are ready! Jump in to review transcripts, summary, and action items."
+        })
         logger.info("Ingestion completed for meeting ID: %s", meeting_id)
         return {"status": "completed"}
     
@@ -119,5 +149,8 @@ def ingest_meeting_task(meeting_id: int):
         logger.exception("Ingestion failed for meeting ID %s: %s", meeting_id, e)
         with Session(engine) as session:
             crud_meeting.update_meeting_status(session, meeting_id, "failed")
-        progress_svc.publish_progress(meeting_id, "failed", {"error": str(e)})
+        progress_svc.publish_progress(meeting_id, "failed", {
+            "error": str(e),
+            "msg": "Something went wrong during processing. Please try again."
+        })
         return {"status": "failed", "error": str(e)}
