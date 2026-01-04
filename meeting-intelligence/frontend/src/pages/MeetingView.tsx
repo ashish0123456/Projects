@@ -83,7 +83,7 @@ export default function MeetingView() {
     // While waiting for completion
     if (!isComplete) {
         return (
-            <div className="max-w-4xl mx-auto">
+            <div className="w-full max-w-7xl mx-auto px-4 py-8">
                 <ProgressPanel meetingId={Number(id)} onComplete={() => setIsComplete(true)} />
                 {loading && (
                     <div className="mt-4 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 p-6 text-center">
@@ -96,7 +96,7 @@ export default function MeetingView() {
 
     // After the completion of background ingestion task
     return (
-        <div className="max-w-7xl mx-auto space-y-6">
+        <div className="w-full max-w-7xl mx-auto space-y-6 px-4 py-8">
             {/* Meeting Header */}
             {meetingInfo && (
                 <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-6 shadow-xl">

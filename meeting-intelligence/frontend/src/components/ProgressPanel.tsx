@@ -79,16 +79,15 @@ export default function ProgressPanel({ meetingId, onComplete }: Props) {
                 <div className="space-y-6">
                     <div className="bg-white/5 rounded-xl p-6 border border-white/10">
                         <div className="flex items-center space-x-4 mb-4">
-                            <div className={`w-16 h-16 bg-gradient-to-br ${stageInfo?.color} rounded-xl flex items-center justify-center text-3xl shadow-lg`}>
+                            <div className={`w-12 h-12 bg-gradient-to-br ${stageInfo?.color} rounded-lg flex items-center justify-center text-2xl shadow-lg`}>
                                 {stageInfo?.icon}
                             </div>
                             <div className="flex-1">
                                 <p className="text-white/60 text-sm mb-1">Current Stage</p>
-                                <p className={`text-2xl font-bold ${
-                                    progress.stage === "completed" 
-                                        ? "text-green-400" 
+                                <p className={`text-2xl font-bold ${progress.stage === "completed"
+                                        ? "text-green-400"
                                         : "text-white"
-                                }`}>
+                                    }`}>
                                     {stageInfo?.label}
                                 </p>
                             </div>

@@ -1,0 +1,118 @@
+name: Docker Build & Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Build backend image
+      uses: docker/build-push-action@v4
+      with:
+        context: ./backend
+        push: false
+        tags: meeting-intelligence-backend:test
+
+    - name: Build frontend image
+      uses: docker/build-push-action@v4
+      with:
+        context: ./frontend
+        push: false
+        tags: meeting-intelligence-frontend:test
+
+    - name: Run docker-compose validation
+      run: |
+        docker-compose config
+        docker-compose -f docker-compose.prod.yml config
+
+    - name: Lint Dockerfile
+      run: |
+        docker run --rm -i hadolint/hadolint < backend/Dockerfile
+        docker run --rm -i hadolint/hadolint < frontend/Dockerfile
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Start services
+      run: docker-compose up -d
+
+    - name: Wait for services
+      run: |
+        docker-compose exec -T backend sh -c 'for i in {1..30}; do python -c "import psycopg2; psycopg2.connect(\"postgresql://asavaliya:Ambition@3941@postgres:5432/meetings_db\")" && exit 0 || sleep 1; done'
+
+    - name: Check backend health
+      run: |
+        docker-compose exec -T backend curl -f http://localhost:8000/health || exit 1
+
+    - name: Check Redis connectivity
+      run: |
+        docker-compose exec -T redis redis-cli ping
+
+    - name: View logs on failure
+      if: failure()
+      run: docker-compose logs
+
+    - name: Cleanup
+      if: always()
+      run: docker-compose down
+
+  security-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif'

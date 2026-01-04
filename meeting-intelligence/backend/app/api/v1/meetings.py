@@ -79,7 +79,7 @@ def get_summary(meeting_id: int, session: Session = Depends(get_session)):
     summary = crud_meeting.get_summary(session, meeting_id)
     if not summary:
         return None
-    return SummaryRead(**summary)
+    return summary
 
 # ------------------------------
 # Search transcript

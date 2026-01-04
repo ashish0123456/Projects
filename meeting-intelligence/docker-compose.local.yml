@@ -1,14 +1,3 @@
-# Main docker-compose file - defaults to local development environment
-# 
-# To use the local development environment:
-#   docker-compose up
-#
-# To use the production environment:
-#   docker-compose -f docker-compose.prod.yml up -d
-#
-# To use the local development environment explicitly:
-#   docker-compose -f docker-compose.local.yml up
-
 version: '3.9'
 
 services:

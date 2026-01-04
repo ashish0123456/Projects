@@ -36,3 +36,6 @@ class SummaryRead(BaseModel):
     meeting_id: int
     summary_text: Optional[str] = None
     created_at: Optional[datetime] = None 
+
+    class Config:
+        orm_mode = True

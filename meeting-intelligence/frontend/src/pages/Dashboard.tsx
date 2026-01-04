@@ -14,10 +14,10 @@ export default function Dashboard() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="w-full max-w-7xl mx-auto space-y-6 px-4 py-8">
             <UploadForm onUploaded={handleUploaded} />
             {meetingId && (
-                <div className="max-w-2xl mx-auto bg-white/10 backdrop-blur-md rounded-xl border border-white/20 p-6 text-center">
+                <div className="w-full max-w-2xl mx-auto bg-white/10 backdrop-blur-md rounded-xl border border-white/20 p-6 text-center">
                     <div className="flex items-center justify-center space-x-3">
                         <svg className="animate-spin h-6 w-6 text-purple-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>

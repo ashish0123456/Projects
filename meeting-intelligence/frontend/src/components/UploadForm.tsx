@@ -65,8 +65,8 @@ export default function UploadForm({ onUploaded }: Props) {
     };
 
     return (
-        <div className="max-w-2xl mx-auto">
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8">
+        <div className="w-full max-w-2xl mx-auto px-4">
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-6 sm:p-8">
                 <div className="text-center mb-8">
                     <h2 className="text-3xl font-bold text-white mb-2">Upload Meeting Recording</h2>
                     <p className="text-white/70">Upload your audio or video file to get AI-powered insights</p>
@@ -78,8 +78,8 @@ export default function UploadForm({ onUploaded }: Props) {
                     onDragOver={handleDrag}
                     onDrop={handleDrop}
                     className={`border-2 border-dashed rounded-xl p-12 text-center transition-all ${dragActive
-                            ? "border-purple-400 bg-purple-500/20"
-                            : "border-white/30 hover:border-white/50 bg-white/5"
+                        ? "border-purple-400 bg-purple-500/20"
+                        : "border-white/30 hover:border-white/50 bg-white/5"
                         }`}
                 >
                     <input
@@ -91,8 +91,8 @@ export default function UploadForm({ onUploaded }: Props) {
                     />
 
                     <div className="flex flex-col items-center space-y-4">
-                        <div className="w-20 h-20 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center shadow-lg">
-                            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center shadow-lg">
+                            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                             </svg>
                         </div>
